@@ -103,6 +103,8 @@ app.get("/somepage", async (req, res) => {
     const result = await client.query("SELECT * FROM Animator_Files");
     console.log("Data retrieved:", result.rows);
   } catch (err) {
+    console.log("PROBLEM")
+    console.log("Error executing query", err);
     console.error("Error executing query", err.stack);
     res.status(500).send("Internal Server Error");
   } finally {
