@@ -11,9 +11,6 @@ RUN npm install
 # Copy the rest of the application files
 COPY . .
 
-# Run npm ci to ensure a clean and reproducible installation
-RUN npm ci
-
 ARG PORT
 EXPOSE ${PORT:-3000}
 
