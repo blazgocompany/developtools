@@ -4,15 +4,6 @@ var fs = require("fs"),
 const app = express();
 const port = process.env.PORT || 3000;
 
-import postgres from "postgres";
-
-const sql = postgres({
-  host: process.env.DATABASE_HOST,
-  database: process.env.DATABASE_NAME,
-  username: process.env.DATABASE_USER,
-  password: process.env.DATABASE_PASSWORD,
-  ssl: "require",
-});
 
 app.get("/", (req, res) => {
   res.send(`
