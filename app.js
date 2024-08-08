@@ -3,7 +3,7 @@ var fs = require("fs"),
   path = require("path");
 const app = express();
 const port = process.env.PORT || 3000;
-require("dotenv").config();
+require("dotenv").config(); 
 app.get("/", (req, res) => {
   res.send(`
         <!DOCTYPE html>
@@ -61,58 +61,52 @@ app.get("/", (req, res) => {
     `);
 });
 
-app.get("/somepage", (req, res) => {
+app.get('/somepage', async (req, res) => {
+    const client = new Client({
+      host: process.env.DB_HOST,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+    });
   
-  const { Client } = require("pg");
-
-  // Create a new instance of the client with your connection details
-  const client = new Client({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-  });
-
-  async function run() {
     try {
       // Connect to the PostgreSQL server
       await client.connect();
-
-      // Create a table
+  
+      // Create a table if it doesn't exist (consider moving this to a setup script)
       await client.query(`
-      CREATE TABLE IF NOT EXISTS Animator_Files (
-        Name VARCHAR(255) NOT NULL,
-        Data BYTEA,
-        ModifiedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-
-      console.log("Table created or already exists.");
-
-      // Insert data into the table
+        CREATE TABLE IF NOT EXISTS Animator_Files (
+          id SERIAL PRIMARY KEY,
+          Name VARCHAR(255) NOT NULL,
+          Data BYTEA,
+          ModifiedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+  
+      // Insert data into the table (consider moving this to a setup script)
       await client.query(`
-      INSERT INTO Animator_Files (Name, Data) 
-      VALUES 
-      ('Example File', 'Sample data in binary'::bytea),
-      ('Another File', 'More sample data'::bytea)
-    `);
-
-      console.log("Data inserted.");
-
+        INSERT INTO Animator_Files (Name, Data) 
+        VALUES 
+        ($1, $2),
+        ($3, $4)
+      `, [
+        'Example File', Buffer.from('Sample data in binary'),
+        'Another File', Buffer.from('More sample data')
+      ]);
+  
       // Read data from the table
-      const res = await client.query("SELECT * FROM Animator_Files");
-      console.log("Data retrieved:");
-      console.log(res.rows);
+      const result = await client.query('SELECT * FROM Animator_Files');
+  
+      // Respond with data
+      res.json(result.rows);
     } catch (err) {
-      console.error("Error executing query", err.stack);
+      console.error('Error executing query', err.stack);
+      res.status(500).send('Internal Server Error');
     } finally {
-      // Close the connection
+      // Ensure the client is properly closed
       await client.end();
     }
-  }
-
-  run();
-});
+  });
 
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
