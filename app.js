@@ -1,16 +1,16 @@
-const express = require('express');
-const { Client } = require('pg');
-const path = require('path');
-require('dotenv').config();
+const express = require("express");
+const { Client } = require("pg");
+const path = require("path");
+require("dotenv").config();
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 // Serve static files
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, "public")));
 
 // Route for the homepage
-app.get('/', (req, res) => {
+app.get("/", (req, res) => {
   res.send(`
     <!DOCTYPE html>
     <html lang="en">
@@ -58,7 +58,7 @@ app.get('/', (req, res) => {
 });
 
 // Route for /somepage
-app.get('/somepage', async (req, res) => {
+app.get("/somepage", async (req, res) => {
   const client = new Client({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
@@ -67,38 +67,44 @@ app.get('/somepage', async (req, res) => {
   });
 
   try {
-    // Connect to the PostgreSQL server
+    console.log("Connecting to database...");
     await client.connect();
+    console.log("Connected to database.");
 
-    // Create table if it doesn't exist
+    console.log("Creating table...");
     await client.query(`
-      CREATE TABLE IF NOT EXISTS Animator_Files (
-        id SERIAL PRIMARY KEY,
-        Name VARCHAR(255) NOT NULL,
-        Data BYTEA,
-        ModifiedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
+  CREATE TABLE IF NOT EXISTS Animator_Files (
+    id SERIAL PRIMARY KEY,
+    Name VARCHAR(255) NOT NULL,
+    Data BYTEA,
+    ModifiedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  )
+`);
+    console.log("Table created or already exists.");
 
-    // Insert data into the table (adjust as needed)
-    await client.query(`
-      INSERT INTO Animator_Files (Name, Data) 
-      VALUES 
-      ($1, $2),
-      ($3, $4)
-    `, [
-      'Example File', Buffer.from('Sample data in binary'),
-      'Another File', Buffer.from('More sample data')
-    ]);
+    console.log("Inserting data...");
+    await client.query(
+      `
+  INSERT INTO Animator_Files (Name, Data) 
+  VALUES 
+  ($1, $2),
+  ($3, $4)
+`,
+      [
+        "Example File",
+        Buffer.from("Sample data in binary"),
+        "Another File",
+        Buffer.from("More sample data"),
+      ]
+    );
+    console.log("Data inserted.");
 
-    // Read data from the table
-    const result = await client.query('SELECT * FROM Animator_Files');
-
-    // Respond with data
-    res.json(result.rows);
+    console.log("Querying data...");
+    const result = await client.query("SELECT * FROM Animator_Files");
+    console.log("Data retrieved:", result.rows);
   } catch (err) {
-    console.error('Error executing query', err.stack);
-    res.status(500).send('Internal Server Error');
+    console.error("Error executing query", err.stack);
+    res.status(500).send("Internal Server Error");
   } finally {
     // Ensure the client is properly closed
     await client.end();
