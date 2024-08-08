@@ -3,7 +3,7 @@ var fs = require("fs"),
   path = require("path");
 const app = express();
 const port = process.env.PORT || 3000;
-
+require("dotenv").config();
 app.get("/", (req, res) => {
   res.send(`
         <!DOCTYPE html>
@@ -62,7 +62,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/somepage", (req, res) => {
-  require("dotenv").config();
+  
   const { Client } = require("pg");
 
   // Create a new instance of the client with your connection details
