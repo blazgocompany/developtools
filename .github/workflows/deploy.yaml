@@ -18,7 +18,8 @@ jobs:
         uses: koyeb-community/install-koyeb-cli@v2
         with:
           api_token: "${{ secrets.KOYEB_EXAMPLES_APPS_TOKEN }}"
-
+      - name: Install dependencies
+        run: npm install
       - name: Build and deploy the application
         uses: koyeb/action-git-deploy@v1
         with:
