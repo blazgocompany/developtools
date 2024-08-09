@@ -6,7 +6,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // Serve static files
-app.use(express.static(path.join(__dirname, "public")));
+app.use('/resources/home', express.static(path.join(__dirname, "pages", "home")));
 
 let Database = {
   connect: function () {
