@@ -1,7 +1,7 @@
 const express = require("express");
 const { Client } = require("pg");
 const path = require("path");
-require("dotenv").config();
+
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -64,14 +64,9 @@ app.get("/somepage", async (req, res) => {
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
+    sslmode: require
   });
-  console.log("HEY!")
   try {
-    console.log(process.env)
-    console.log(process.env.DB_HOST)
-    console.log(process.env.DB_USER)
-    console.log(process.env.DB_PASSWORD)
-    console.log(process.env.DB_NAME)
     console.log("Connecting to database...");
     await client.connect();
     console.log("Connected to database.");
