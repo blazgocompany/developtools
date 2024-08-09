@@ -4,7 +4,7 @@
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>Home</title>       
-          <link rel="stylesheet" type="text/css" href="/styles/home.css">
+          <link rel="stylesheet" type="text/css" href="/styles.css">
       </head>
       <body>
           <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.6.1/gsap.min.js"></script>
@@ -40,31 +40,6 @@
                   <!-- Files will be injected here -->
               </div>
           </div>
-          <script>
-            // JavaScript to fetch file data
-            fetch('/files')
-              .then(response => response.json())
-              .then(data => {
-                const fileContainer = document.querySelector(".filecontainer");
-                data.forEach(file => {
-                  const fileElement = document.createElement("div");
-                  fileElement.className = "file";
-                  fileElement.innerHTML = \`
-                    <div class="filename">${file.Name}</div>
-                    <div class="filedate">${file.ModifiedDate}</div>
-                    <div class="openbtn">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                            class="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
-                            <path fill-rule="evenodd"
-                                d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5" />
-                            <path fill-rule="evenodd"
-                                d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z" />
-                        </svg>
-                    </div>
-                  \`;
-                  fileContainer.appendChild(fileElement);
-                });
-              });
-          </script>
+          <script src="scripts.js"></script>
       </body>
       </html>
