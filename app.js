@@ -28,7 +28,7 @@ let Database = {
 
 app.get("/", (req, res) => {
   // Path to the file you want to serve
-  const filePath = path.join(__dirname, "home", ".html");
+  const filePath = path.join(__dirname, "pages", "home", "component.html");
 
   // Read the file and send it as a response
   fs.readFile(filePath, "utf8", (err, data) => {
