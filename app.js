@@ -65,7 +65,7 @@ app.get("/somepage", async (req, res) => {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
   });
-
+  console.log("HEY!")
   try {
     console.log(process.env)
     console.log(process.env.DB_HOST)
@@ -108,10 +108,11 @@ app.get("/somepage", async (req, res) => {
     const result = await client.query("SELECT * FROM Animator_Files");
     console.log("Data retrieved:", result.rows);
   } catch (err) {
+    console.log(process.env.DB_HOST)
     console.log("PROBLEM")
     console.log("Error executing query", err);
     console.error("Error executing query", err.stack);
-    res.status(500).send("Internal Server Error");
+    res.status(500).send("Probs");
   } finally {
     // Ensure the client is properly closed
     await client.end();
