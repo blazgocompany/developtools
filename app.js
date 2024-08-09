@@ -64,7 +64,7 @@ app.get("/somepage", async (req, res) => {
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    sslmode: "require"
+    ssl: true
   });
   try {
     console.log("Connecting to database...");
