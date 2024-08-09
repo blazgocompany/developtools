@@ -42,7 +42,7 @@ app.get("/", (req, res) => {
 });
 
 // Endpoint to fetch file data
-app.get("/getfiles", (req, res) => {
+app.get("/internal/getfiles.blazgo", (req, res) => {
   let db = Database.connect();
 
   db.query("SELECT * FROM Animator_Files", (err, result) => {

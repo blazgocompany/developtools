@@ -4,7 +4,7 @@
 // }
 
 // JavaScript to fetch file data
-fetch('/files')
+fetch('/internal/getfiles.blazgo')
 .then(response => response.json())
 .then(data => {
   const fileContainer = document.querySelector(".filecontainer");
