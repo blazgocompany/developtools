@@ -9,8 +9,31 @@ const port = process.env.PORT || 3000;
 // Serve static files
 app.use(express.static(path.join(__dirname, "public")));
 
+
+let Database = {
+    connect: function(){
+        const client = new Client({
+            host: process.env.DB_HOST,
+            user: process.env.DB_USER,
+            password: process.env.DB_PASSWORD,
+            database: process.env.DB_NAME,
+            ssl: true
+            
+        });
+        this.isConnected = true
+        return client
+        
+    },
+    disconnect: function(client){
+        client.end();
+    },
+    isConnected: false
+}
+
+
 // Route for the homepage
 app.get("/", (req, res) => {
+  let connec
   res.send(`
     <!DOCTYPE html>
     <html lang="en">
@@ -59,13 +82,7 @@ app.get("/", (req, res) => {
 
 // Route for /somepage
 app.get("/somepage", async (req, res) => {
-  const client = new Client({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    ssl: true
-  });
+    
   try {
     console.log("Connecting to database...");
     await client.connect();
@@ -103,11 +120,9 @@ app.get("/somepage", async (req, res) => {
     const result = await client.query("SELECT * FROM Animator_Files");
     console.log("Data retrieved:", result.rows);
   } catch (err) {
-    console.log(process.env.DB_HOST)
-    console.log("PROBLEM")
-    console.log("Error executing query", err);
-    console.error("Error executing query", err.stack);
-    res.status(500).send("Probs");
+    console.log("Problem at /somepage ID: #001")
+   
+    res.status(500).send("Internal Server Error");
   } finally {
     // Ensure the client is properly closed
     await client.end();
