@@ -18,6 +18,7 @@ let Database = {
       ssl: true,
     });
     this.isConnected = true;
+    client.connect();
     return client;
   },
   disconnect: function (client) {
