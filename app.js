@@ -58,8 +58,32 @@ app.get("/internal/getfiles.blazgo", (req, res) => {
       res.json(result);
     }
   });
+  db.end()
 });
+app.post('/internal/deletefile.blazgo', async (req, res) => {
+  const { id } = req.body;
 
+  if (!id) {
+      return res.status(400).json({ success: false, message: 'File ID is required' });
+  }
+
+  const client = Database.connect(); // Use your existing Database object
+
+  try {
+      const result = await client.query('DELETE FROM Animator_Files WHERE id = $1 RETURNING *', [id]);
+
+      if (result.rowCount > 0) {
+          res.json({ success: true, message: 'File deleted successfully' });
+      } else {
+          res.status(404).json({ success: false, message: 'File not found' });
+      }
+  } catch (err) {
+      console.error('Error executing query:', err.stack);
+      res.status(500).json({ success: false, message: 'Error deleting file' });
+  } finally {
+      client.end() // Ensure client is disconnected
+  }
+});
 // Route for /somepage
 app.get("/somepage", async (req, res) => {
   try {
