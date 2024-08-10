@@ -43,13 +43,17 @@ app.get("/", (req, res) => {
 
 // Endpoint to fetch file data
 app.get("/internal/getfiles.blazgo", (req, res) => {
+  console.log("hit")
   let db = Database.connect();
-
+  console.log("connected");
   db.query("SELECT * FROM Animator_Files", (err, result) => {
+    console.log("inside")
     if (err) {
+      console.log("error")
       console.error(err.stack);
       res.status(500).send("Error fetching data");
     } else {
+      console.log("sent")
       res.json(result);
     }
   });
