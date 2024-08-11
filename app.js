@@ -56,10 +56,12 @@ app.get("/internal/getfiles.blazgo", (req, res) => {
     } else {
       console.log("sent")
       res.json(result);
+      db.end()
     }
   });
-  db.end()
+ 
 });
+
 app.post('/internal/deletefile.blazgo', async (req, res) => {
   const { id } = req.body;
 
