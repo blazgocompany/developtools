@@ -5,6 +5,8 @@ const fs = require("fs");
 const app = express();
 const port = process.env.PORT || 3000;
 
+
+app.use(express.json());
 // Serve static files
 app.use('/resources/home', express.static(path.join(__dirname, "pages", "home")));
 
