@@ -10,70 +10,75 @@ function timeAgo(timestamp) {
 
   // Check time difference
   if (seconds < 60) {
-      return 'Just Now';
+    return "Just Now";
   } else if (minutes < 60) {
-      return `${minutes} minutes ago`;
+    return `${minutes} minutes ago`;
   } else if (hours < 24) {
-      return `${hours} hours ago`;
+    return `${hours} hours ago`;
   } else if (days < oneWeek) {
-      return `${days} days ago`;
+    return `${days} days ago`;
   } else if (days < oneWeek * 2) {
-      const dayOfWeek = pastDate.toLocaleDateString('en-US', { weekday: 'long' });
-      return `last ${dayOfWeek}`;
+    const dayOfWeek = pastDate.toLocaleDateString("en-US", { weekday: "long" });
+    return `last ${dayOfWeek}`;
   } else if (days < oneYear) {
-      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-      return pastDate.toLocaleDateString('en-US', options);
+    const options = {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    };
+    return pastDate.toLocaleDateString("en-US", options);
   } else {
-      const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
-      return pastDate.toLocaleDateString('en-US', options);
+    const options = { year: "numeric", month: "numeric", day: "numeric" };
+    return pastDate.toLocaleDateString("en-US", options);
   }
 }
 
 function deleteFile(fileId) {
-  fetch('/internal/deletefile.blazgo', {
-      method: 'POST',
-      headers: {
-          'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ id: fileId })
+  fetch("/internal/deletefile.blazgo", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ id: fileId }),
   })
-  .then(response => {
+    .then((response) => {
       if (!response.ok) {
-          throw new Error('Failed to delete file');
+        throw new Error("Failed to delete file");
       }
       return response.json();
-  })
-  .then(result => {
+    })
+    .then((result) => {
       if (result.success) {
-          // Remove the file element from the DOM
-          document.getElementById(`file-${fileId}`).remove();
+        // Remove the file element from the DOM
+        document.getElementById(`file-${fileId}`).remove();
       } else {
-          alert('Failed to delete file');
+        alert("Failed to delete file");
       }
-  })
-  .catch(error => {
-      console.error('Error:', error);
-  });
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
 }
 
-fetch('/internal/getfiles.blazgo')
-  .then(response => {
-      if (!response.ok) {
-          throw new Error('Network response was not ok');
-      }
-      return response.json();
+fetch("/internal/getfiles.blazgo")
+  .then((response) => {
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    return response.json();
   })
-  .then(data => {
-      const fileContainer = document.querySelector(".filecontainer");
-      data.rows.forEach(file => {
-          const fileElement = document.createElement("div");
-          fileElement.className = "file";
-          fileElement.id = `file-${file.id}`; // Unique ID for each file element
+  .then((data) => {
+    const fileContainer = document.querySelector(".filecontainer");
+    data.rows.forEach((file) => {
+      const fileElement = document.createElement("div");
+      fileElement.className = "file";
+      fileElement.id = `file-${file.id}`; // Unique ID for each file element
 
-          // Escaping file names for safety
-          const escapedName = file.name.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-          
-          fileElement.innerHTML = `
+      // Escaping file names for safety
+      const escapedName = file.name.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+      fileElement.innerHTML = `
               <div class="filename">${escapedName}</div>
               <div class="filedate">${timeAgo(file.modifieddate)}</div>
               <div class="openbtn">
@@ -86,15 +91,14 @@ fetch('/internal/getfiles.blazgo')
                   </svg>
               </div>
               <div class="deletebtn" onclick="deleteFile(${file.id})">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                      class="bi bi-trash" viewBox="0 0 16 16">
-                      <path d="M5.5 5a.5.5 0 0 1 .5.5V12a.5.5 0 0 1-1 0V5.5A.5.5 0 0 1 5.5 5zm3 0a.5.5 0 0 1 .5.5V12a.5.5 0 0 1-1 0V5.5A.5.5 0 0 1 8.5 5zm-6.5 1a.5.5 0 0 1 .5.5V12a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5H13a.5.5 0 0 1 .5.5v.5h-1V6a.5.5 0 0 1-.5-.5H3a.5.5 0 0 1-.5.5V6H1v-.5a.5.5 0 0 1 .5-.5z"/>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
+                      <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
                   </svg>
               </div>
           `;
-          fileContainer.appendChild(fileElement);
-      });
+      fileContainer.appendChild(fileElement);
+    });
   })
-  .catch(error => {
-      console.error('There was a problem with the fetch operation:', error);
+  .catch((error) => {
+    console.error("There was a problem with the fetch operation:", error);
   });

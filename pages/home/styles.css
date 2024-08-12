@@ -209,6 +209,20 @@ body::before {
     
 }
 
+.deletebtn{
+    float: right;
+    background: #444;
+    margin: 4px;
+    display: flex;
+    height: 32px;
+    width: 32px;
+    border-radius: 4px;
+    justify-content: center;
+    align-items: center;
+
+    
+}
+
 .file:hover .openbtn{
     background: #888;
 }
