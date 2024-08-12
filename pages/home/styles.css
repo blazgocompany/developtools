@@ -223,6 +223,10 @@ body::before {
     
 }
 
+.file:hover .deletebtn:hover{
+    background: radial-gradient(circle at 0 50%, hsl(0, 99%, 67%), transparent) border-box, hsl(0, 100%, 85%);
+}
+
 .file:hover .openbtn{
     background: #888;
 }
