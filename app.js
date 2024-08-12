@@ -63,6 +63,8 @@ app.get("/internal/getfiles.blazgo", (req, res) => {
 });
 
 app.post('/internal/deletefile.blazgo', async (req, res) => {
+  console.log('Request Body:', req.body);
+  
   const { id } = req.body;
 
   if (!id) {
