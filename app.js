@@ -123,7 +123,7 @@ app.get("/internal/createfile.blazgo", async (req, res) => {
       app.get(
         "/animations/" + hashAndTruncate(result.rows[0].id),
         (req, res) => {
-          console.log(hashAndTruncate(result.rows[0].id))
+          console.log(hashAndTruncate(result.rows[0].id.toString))
           let db = Database.connect();
           console.log("connected");
           db.query("SELECT * FROM Animator_Files WHERE id = " + result.rows[0].id, (err, result) => {
