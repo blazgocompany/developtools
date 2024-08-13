@@ -3,13 +3,13 @@ const { Client } = require("pg");
 const path = require("path");
 const fs = require("fs");
 const app = express();
-const crypto = require('crypto');
+const crypto = require("crypto");
 const port = process.env.PORT || 3000;
 function hashAndTruncate(input, length = 64) {
   // Create a SHA-256 hash of the input string
-  const hash = crypto.createHash('sha256');
+  const hash = crypto.createHash("sha256");
   hash.update(input);
-  const fullHash = hash.digest('hex');
+  const fullHash = hash.digest("hex");
 
   // Truncate the hash to the specified length
   return fullHash.slice(0, length);
@@ -19,6 +19,10 @@ app.use(express.json());
 app.use(
   "/resources/home",
   express.static(path.join(__dirname, "pages", "home"))
+);
+app.use(
+  "/resources/editor",
+  express.static(path.join(__dirname, "pages", "editor"))
 );
 
 let Database = {
@@ -107,26 +111,56 @@ app.post("/internal/deletefile.blazgo", async (req, res) => {
 
 app.get("/internal/createfile.blazgo", async (req, res) => {
   const client = Database.connect();
-try {
-  const result = await client.query(
-    "INSERT INTO Animator_Files (Name, Data) VALUES ($1, $2) RETURNING id",
-    ["Untitled File", Buffer.from("W10=")]
-  );
+  try {
+    const result = await client.query(
+      "INSERT INTO Animator_Files (Name, Data) VALUES ($1, $2) RETURNING id",
+      ["Untitled File", Buffer.from("W10=")]
+    );
 
-  if (result.rowCount > 0) {
-    const newId = result.rows[0].id; // Assuming 'id' is the column name for the primary key
-    res.json({ success: true, id: newId });
-    app.get("/animations/" + hashAndTruncate(result.rows[0].id))
-  } else {
-    res.status(404).json({ success: false, message: "File not found" });
+    if (result.rowCount > 0) {
+      const newId = result.rows[0].id; // Assuming 'id' is the column name for the primary key
+      res.json({ success: true, id: newId });
+      app.get(
+        "/animations/" + hashAndTruncate(result.rows[0].id),
+        (req, res) => {
+          console.log(hashAndTruncate(result.rows[0].id))
+          let db = Database.connect();
+          console.log("connected");
+          db.query("SELECT * FROM Animator_Files WHERE id = " + result.rows[0].id, (err, result) => {
+            console.log("inside");
+            if (err) {
+              console.log("error");
+              console.error(err.stack);
+              res.status(500).send("Error fetching data");
+            } else {
+              var data = Buffer.toString(result.rows[0].data)
+              data = Buffer.from(data, 'base64')
+              data = data.toString('utf-8')
+              const filePath = path.join(__dirname, "pages", "editor", "component.html");
+
+              // Read the file and send it as a response
+              fs.readFile(filePath, "utf8", (err, data) => {
+                if (err) {
+                  res.status(500).send("We aren't able to fetch that file.");
+                  console.error(err);
+                  return;
+                }
+                res.send(data + "<script>importTweensFromJSON(`" + data + "`)</script>");
+              });
+              
+            }
+          });
+        }
+      );
+    } else {
+      res.status(404).json({ success: false, message: "File not found" });
+    }
+  } catch (err) {
+    console.error("Error executing query:", err.stack);
+    res.status(500).json({ success: false, message: "Error inserting file" });
+  } finally {
+    client.end(); // Ensure client is disconnected
   }
-} catch (err) {
-  console.error("Error executing query:", err.stack);
-  res.status(500).json({ success: false, message: "Error inserting file" });
-} finally {
-  client.end(); // Ensure client is disconnected
-}
-
 });
 
 app.post("/internal/renamefile.blazgo", async (req, res) => {
@@ -150,7 +184,11 @@ app.post("/internal/renamefile.blazgo", async (req, res) => {
     );
 
     if (result.rowCount > 0) {
-      res.json({ success: true, message: "File renamed successfully", file: result.rows[0] });
+      res.json({
+        success: true,
+        message: "File renamed successfully",
+        file: result.rows[0],
+      });
     } else {
       res.status(404).json({ success: false, message: "File not found" });
     }
@@ -177,7 +215,7 @@ app.post("/internal/updatefiledata.blazgo", async (req, res) => {
 
   try {
     // Encode the new data into a Buffer
-    const encodedData = Buffer.from(newData, 'utf-8');
+    const encodedData = Buffer.from(newData, "utf-8");
 
     // Update the file data where the ID matches
     const result = await client.query(
@@ -186,18 +224,23 @@ app.post("/internal/updatefiledata.blazgo", async (req, res) => {
     );
 
     if (result.rowCount > 0) {
-      res.json({ success: true, message: "File data updated successfully", file: result.rows[0] });
+      res.json({
+        success: true,
+        message: "File data updated successfully",
+        file: result.rows[0],
+      });
     } else {
       res.status(404).json({ success: false, message: "File not found" });
     }
   } catch (err) {
     console.error("Error executing query:", err.stack);
-    res.status(500).json({ success: false, message: "Error updating file data" });
+    res
+      .status(500)
+      .json({ success: false, message: "Error updating file data" });
   } finally {
     client.end(); // Ensure client is disconnected
   }
 });
-
 
 // Start the server
 app.listen(port, () => {
