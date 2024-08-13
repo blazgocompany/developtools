@@ -121,9 +121,9 @@ app.get("/internal/createfile.blazgo", async (req, res) => {
       const newId = result.rows[0].id; // Assuming 'id' is the column name for the primary key
       res.json({ success: true, id: newId });
       app.get(
-        "/animations/" + hashAndTruncate(result.rows[0].id.toString),
+        "/animations/" + hashAndTruncate(result.rows[0].id.toString()),
         (req, res) => {
-          console.log(hashAndTruncate(result.rows[0].id.toString))
+          console.log(hashAndTruncate(result.rows[0].id.toString()))
           let db = Database.connect();
           console.log("connected");
           db.query("SELECT * FROM Animator_Files WHERE id = " + result.rows[0].id, (err, result) => {
