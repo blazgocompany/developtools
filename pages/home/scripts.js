@@ -8,7 +8,6 @@ function timeAgo(timestamp) {
   const oneWeek = 7;
   const oneYear = 365;
 
-  // Check time difference
   if (seconds < 60) {
     return "Just Now";
   } else if (minutes < 60) {
@@ -50,9 +49,11 @@ function deleteFile(fileId) {
     })
     .then((result) => {
       if (result.success) {
-        // Remove the file element from the DOM
-        document.getElementById(`file-${fileId}`).style.height = "0px";
-        document.getElementById(`file-${fileId}`).style.transform = "scaleX(0)";
+        const fileElement = document.getElementById(`file-${fileId}`);
+        if (fileElement) {
+          fileElement.style.height = "0px";
+          fileElement.style.transform = "scaleX(0)";
+        }
       } else {
         alert("Failed to delete file");
       }
@@ -60,6 +61,82 @@ function deleteFile(fileId) {
     .catch((error) => {
       console.error("Error:", error);
     });
+}
+
+function renameFile(fileId, newName) {
+  fetch('/internal/renamefile.blazgo', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ id: fileId, newName: newName })
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Failed to rename file');
+    }
+    return response.json();
+  })
+  .then(result => {
+    if (result.success) {
+      const fileElement = document.getElementById(`file-${fileId}`);
+      if (fileElement) {
+        const filenameElement = fileElement.querySelector('.filename');
+        if (filenameElement) {
+          filenameElement.textContent = result.file.Name;
+        }
+      }
+      alert('File renamed successfully');
+    } else {
+      alert('Failed to rename file: ' + result.message);
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
+}
+
+function makeFileEditable(fileElement) {
+  const filenameElement = fileElement.querySelector('.filename');
+  const fileId = fileElement.id.replace('file-', '');
+
+  if (filenameElement) {
+    filenameElement.addEventListener('dblclick', function() {
+      const currentName = filenameElement.textContent.trim();
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.value = currentName;
+      filenameElement.innerHTML = '';
+      filenameElement.appendChild(input);
+      input.focus();
+
+      function saveName() {
+        const newName = input.value.trim();
+        if (newName && newName !== currentName) {
+          renameFile(fileId, newName);
+        } else {
+          filenameElement.textContent = currentName;
+        }
+        document.removeEventListener('click', outsideClickListener);
+        input.removeEventListener('keydown', enterKeyListener);
+      }
+
+      function enterKeyListener(e) {
+        if (e.key === 'Enter') {
+          saveName();
+        }
+      }
+
+      function outsideClickListener(e) {
+        if (!fileElement.contains(e.target)) {
+          saveName();
+        }
+      }
+
+      document.addEventListener('click', outsideClickListener);
+      input.addEventListener('keydown', enterKeyListener);
+    });
+  }
 }
 
 fetch("/internal/getfiles.blazgo")
@@ -98,8 +175,10 @@ fetch("/internal/getfiles.blazgo")
               </div>
           `;
       fileContainer.appendChild(fileElement);
+      makeFileEditable(fileElement); // Make the file element editable
     });
   })
   .catch((error) => {
     console.error("There was a problem with the fetch operation:", error);
   });
+  
