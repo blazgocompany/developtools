@@ -51,7 +51,8 @@ function deleteFile(fileId) {
     .then((result) => {
       if (result.success) {
         // Remove the file element from the DOM
-        document.getElementById(`file-${fileId}`).remove();
+        document.getElementById(`file-${fileId}`).style.height = "0px";
+        document.getElementById(`file-${fileId}`).style.transform = "scaleX(0)";
       } else {
         alert("Failed to delete file");
       }

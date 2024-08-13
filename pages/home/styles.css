@@ -176,6 +176,7 @@ body::before {
     background: black;
     margin-bottom: 8px;
     display: flex;
+    transition: transform 0.5s, height 0.5s;
 
 }
 .file:hover{
