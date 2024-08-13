@@ -232,6 +232,7 @@ body::before {
     border-radius: 16px;
     justify-content: center;
     align-items: center;
+	border: none;
 
     
 }

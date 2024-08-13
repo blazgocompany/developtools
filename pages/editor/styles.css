@@ -1,0 +1,280 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
+
+body {
+    margin: 0;
+    background: black;
+    overflow: hidden;
+}
+
+h1, h2, h3, h4, h5, h6, p {
+    margin: 0;
+}
+
+* {
+    color: white;
+    font-family: Nunito, sans-serif;
+}
+
+.sidebar {
+    width: 256px;
+    background: #444;
+    height: 64vh;
+    position: absolute;
+    overflow: auto;
+    left: 300px;
+    top: 8px;
+    border-radius: 16px;
+}
+
+.preview {
+    width: 100vw;
+    height: 100vh;
+}
+
+.timeline {
+    overflow-x: auto;
+    white-space: nowrap;
+    position: absolute;
+    bottom: 0;
+    /* min-width: calc(100vw - 0px); */
+    width: calc(100vw - 0px);
+    height: 120px;
+    background: #444;
+    display: inline-block;
+    border-radius: 16px 16px 0 0;
+    /* overflow: hidden; */
+}
+
+.tween {
+    text-overflow: ellipsis;
+    padding: 4px;
+    display: inline-block;
+    background: black;
+    border-radius: 8px;
+    margin: 8px;
+    height: 32px;
+    line-height: 32px;
+    color: white;
+    cursor: move;
+    position: relative;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+button {
+    padding: 8px;
+    display: inline-block;
+    background: black;
+    margin: 8px;
+    border-radius: 8px;
+    border: none;
+}
+
+button:hover {
+    background: radial-gradient(circle at 0 50%, #4c0000, transparent) border-box, #990000;
+}
+
+.param-box {
+    display: none;
+    margin: 8px;
+}
+
+.dur {
+    width: 100%;
+}
+
+#addFromParam,
+#addToParam,
+#save {
+    margin-left: 0px;
+}
+
+.param {
+    padding: 2px 0;
+    margin: 2px 0;
+    border-radius: 8px;
+}
+
+.param:hover,
+.param.selected {
+    background: #666;
+}
+
+.from-key,
+.from-val,
+.to-key,
+.to-val {
+    width: calc(50% - 24px);
+}
+
+.from-key,
+.to-key {
+    margin: 0 0px;
+}
+
+.param-checkbox {
+    height: 12px;
+}
+
+input {
+    background: black;
+    height: 24px;
+    border: none;
+    border-radius: 8px;
+}
+
+.tween.connected-right {
+    border-radius: 8px 0 0 8px;
+    margin-right: 0px;
+    margin-left: 8px;
+}
+
+.tween.connected-left {
+    border-radius: 0 8px 8px 0;
+    margin-right: 8px;
+    margin-left: 0px;
+}
+
+.tween.connected-both {
+    border-radius: 0;
+    margin-right: 0px;
+    margin-left: 0px;
+}
+
+.preview-box {
+    font-size: 48px;
+    align-items: center;
+    justify-items: center;
+    text-align: center;
+    height: 64px;
+    width: 64px;
+    border-radius: 8px;
+    background: radial-gradient(circle at 0 80%, #fe5858, #ffb3b3), url('https://assets.codepen.io/16327/noise-e82662fe.png');
+    background-blend-mode: color-dodge;
+}
+
+.generate-btn {
+    position: absolute;
+    right: 0vw;
+    top: 0;
+    transform: translate(-10%);
+    background: radial-gradient(circle at 0 80%, #fe5858, #ffb3b3);
+}
+
+.code-box {
+    
+    display: none;
+    z-index: 1000;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    height: 240px;
+    width: 70vw;
+    border-radius: 16px;
+    background: #ddd;
+    color: black;
+    padding: 8px;
+    margin: 0;
+}
+
+.code-box * {
+    color: black;
+}
+
+.gen-code {
+	max-height: 164px;
+	overflow: auto;
+	padding: 16px;
+	border-radius: 16px;
+	background: black;
+	width: calc(70vw - 32px);
+}
+
+.play-btn,
+.pause-btn {
+    background: #444;
+    height: 32px;
+    width: 32px;
+}
+
+.controls {
+    position: absolute;
+    left: 50%;
+    bottom: 120px;
+    transform: translate(-50%);
+}
+
+.element-picker * {
+    color: black;
+    text-align: center;
+}
+
+.element-picker {
+    display: none;
+    border-radius: 16px;
+    flex-direction: column;
+    align-items: center;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    max-width: 900px;
+    max-height: 80vh;
+    background: white;
+    padding: 32px;
+    z-index: 5000;
+}
+
+.element-picker button {
+    color: white;
+}
+
+input[type=number].number-input {
+    font-size: 32px;
+    background: white;
+    border: 1px solid #222;
+    height: 32px;
+    width: 48px;
+    color: black;
+    text-align: center;
+}
+
+input[type=number].element-picker-input {
+    width: 96px;
+    height: 64px;
+    font-size: 64px;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Context Menu Styles */
+.context-menu {
+    display: none;
+    position: absolute;
+    background: #444;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.context-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.context-menu li {
+    padding: 8px 16px;
+    color: white;
+    cursor: pointer;
+}
+
+.context-menu li:hover {
+    background: #666;
+}

@@ -95,7 +95,25 @@ function renameFile(fileId, newName) {
     console.error('Error:', error);
   });
 }
+async function hashStringAndTruncate(str) {
+  // Encode the string as a Uint8Array
+  const encoder = new TextEncoder();
+  const data = encoder.encode(str);
 
+  // Hash the data with SHA-256
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+
+  // Convert the hash to a Uint8Array
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+
+  // Convert to a hexadecimal string
+  const hexString = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
+
+  // Get the first 64 characters (which is 32 bytes)
+  const truncatedHexString = hexString.slice(0, 64);
+
+  return truncatedHexString;
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   // Select the button with class 'createbtn'
@@ -119,6 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (response.ok) {
           // Handle success
           alert(`File created successfully with ID: ${data.id}`);
+          hashStringAndTruncate('your-string-here').then(hash => console.log(hash));
         } else {
           // Handle error
           alert(`Error: ${data.message}`);

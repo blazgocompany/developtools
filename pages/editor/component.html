@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link rel="stylesheet" href="styles/styles.css">
+    <link rel="stylesheet" href="styles/editor.css">
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/Draggable.min.js"></script>
+</head>
+
+<body>
+    <div class="sidebar">
+        <button class="add-tween">Add Tween</button>
+        <button id="addElements">Add Elements</button>
+
+        <div class="param-box">
+            <div class="tween-name"></div>
+
+            <p style="margin-bottom: 0">Elements:</p>
+            <input type="text" id="elemRange" placeholder="(1,2,3-6)" value="1">
+
+            <div class="stagger-container" style="display: none">
+                <small>Your selection contains more than one element. If you do not want to stagger your animations,
+                    enter 0.</small>
+                <p style="margin-bottom: 0">Stagger:</p>
+                <input type="text" id="stagger" placeholder="(0, 0.1, 0.3)" value="0">
+            </div>
+
+            <p style="margin-bottom: 0">Duration:</p>
+            <input type="text" id="duration" placeholder="(seconds)">
+
+            <p style="margin-bottom: 0">Easing Function:</p>
+            <input type="text" id="easingFunction" placeholder="(linear, steps(10), etc.)">
+
+            <button id="addFromParam">Add From Parameters</button>
+            <div class="from-params">
+                <div class="from-param param">
+                    <input type="checkbox" class="param-checkbox">
+                    <input type="text" class="from-key" placeholder="Key">
+                    <input type="text" class="from-val" placeholder="Value">
+                </div>
+            </div>
+
+            <button id="addToParam">Add To Parameters</button>
+            <div class="to-params">
+                <div class="to-param param">
+                    <input type="checkbox" class="param-checkbox">
+                    <input type="text" class="to-key" placeholder="Key">
+                    <input type="text" class="to-val" placeholder="Value">
+                </div>
+            </div>
+
+            <button id="save">Save</button>
+        </div>
+    </div>
+
+    <div class="preview">
+
+    </div>
+
+    <div class="timeline"></div>
+
+    <div class="top-right-section">
+        <button class="generate-btn" id="generate" onclick="generate()">Generate Code</button>
+    </div>
+
+    <div class="code-box">
+        <h1>Your Code</h1>
+        <div class="gen-code"></div>
+    </div>
+
+    <div id="elementPickerDialog" class="element-picker">
+        <h1>Add more elements</h1>
+        <p>You can add more elements to use in the preview</p>
+        <h2>Number of elements:</h2>
+        <input type="number" class="element-picker-input number-input" id="elementNumber">
+
+        <button id="elementPickerDoneButton">Done</button>
+    </div>
+    <script src="script.js"></script>
+
+    <div class="controls">
+        <button class="play-btn" id="play" onclick="recalculate(); tl.play()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play-circle"
+                viewBox="0 0 16 16">
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+                <path
+                    d="M6.271 5.055a.5.5 0 0 1 .52.038l3.5 2.5a.5.5 0 0 1 0 .814l-3.5 2.5A.5.5 0 0 1 6 10.5v-5a.5.5 0 0 1 .271-.445" />
+            </svg>
+        </button>
+        <button class="pause-btn" id="pause" onclick="tl.pause()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                class="bi bi-pause-circle" viewBox="0 0 16 16">
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+                <path
+                    d="M5 6.25a1.25 1.25 0 1 1 2.5 0v3.5a1.25 1.25 0 1 1-2.5 0zm3.5 0a1.25 1.25 0 1 1 2.5 0v3.5a1.25 1.25 0 1 1-2.5 0z" />
+            </svg>
+        </button>
+    </div>
+    <!-- Context Menu -->
+    <div id="contextMenu" class="context-menu">
+        <ul>
+            <li id="edit-tween">Edit</li>
+            <li id="delete-tween">Delete</li>
+        </ul>
+    </div>
+
+    <script src="resources/pages/scripts.js"></script>
+</body>
+
+</html>

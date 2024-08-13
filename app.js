@@ -3,8 +3,17 @@ const { Client } = require("pg");
 const path = require("path");
 const fs = require("fs");
 const app = express();
+const crypto = require('crypto');
 const port = process.env.PORT || 3000;
+function hashAndTruncate(input, length = 64) {
+  // Create a SHA-256 hash of the input string
+  const hash = crypto.createHash('sha256');
+  hash.update(input);
+  const fullHash = hash.digest('hex');
 
+  // Truncate the hash to the specified length
+  return fullHash.slice(0, length);
+}
 app.use(express.json());
 // Serve static files
 app.use(
@@ -46,7 +55,6 @@ app.get("/", (req, res) => {
   });
 });
 
-// Endpoint to fetch file data
 app.get("/internal/getfiles.blazgo", (req, res) => {
   console.log("hit");
   let db = Database.connect();
@@ -96,7 +104,7 @@ app.post("/internal/deletefile.blazgo", async (req, res) => {
     client.end(); // Ensure client is disconnected
   }
 });
-// Route for /somepage
+
 app.get("/internal/createfile.blazgo", async (req, res) => {
   const client = Database.connect();
 try {
@@ -108,6 +116,7 @@ try {
   if (result.rowCount > 0) {
     const newId = result.rows[0].id; // Assuming 'id' is the column name for the primary key
     res.json({ success: true, id: newId });
+    app.get("/animations/" + hashAndTruncate(result.rows[0].id))
   } else {
     res.status(404).json({ success: false, message: "File not found" });
   }
@@ -120,9 +129,6 @@ try {
 
 });
 
-
-
-// Endpoint to rename a file
 app.post("/internal/renamefile.blazgo", async (req, res) => {
   console.log("Request Body:", req.body);
 
@@ -156,8 +162,6 @@ app.post("/internal/renamefile.blazgo", async (req, res) => {
   }
 });
 
-
-// Endpoint to update the file data
 app.post("/internal/updatefiledata.blazgo", async (req, res) => {
   console.log("Request Body:", req.body);
 
