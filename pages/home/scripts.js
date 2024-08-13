@@ -96,6 +96,44 @@ function renameFile(fileId, newName) {
   });
 }
 
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Select the button with class 'createbtn'
+  const createButton = document.querySelector('.createbtn');
+
+  if (createButton) {
+    // Add an event listener for the 'click' event
+    createButton.addEventListener('click', async () => {
+      try {
+        // Make a POST request to the backend endpoint
+        const response = await fetch('/internal/createfile.blazgo', {
+          method: 'GET', // Use GET since your endpoint is a GET request
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        // Parse the JSON response
+        const data = await response.json();
+
+        if (response.ok) {
+          // Handle success
+          alert(`File created successfully with ID: ${data.id}`);
+        } else {
+          // Handle error
+          alert(`Error: ${data.message}`);
+        }
+      } catch (error) {
+        // Handle network errors
+        console.error('Error:', error);
+        alert('An unexpected error occurred.');
+      }
+    });
+  }
+});
+
+
+
 function makeFileEditable(fileElement) {
   const filenameElement = fileElement.querySelector('.filename');
   const fileId = fileElement.id.replace('file-', '');
@@ -181,4 +219,3 @@ fetch("/internal/getfiles.blazgo")
   .catch((error) => {
     console.error("There was a problem with the fetch operation:", error);
   });
-  
