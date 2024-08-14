@@ -125,6 +125,8 @@ function makeFileEditable(fileElement) {
       const currentName = filenameElement.textContent.trim();
       const input = document.createElement('input');
       input.type = 'text';
+      input.style.background = "black";
+      input.style.border = "none";
       input.value = currentName;
       filenameElement.innerHTML = '';
       filenameElement.appendChild(input);
@@ -153,7 +155,7 @@ function makeFileEditable(fileElement) {
         }
       }
 
-      document.addEventListener('click', outsideClickListener);
+      input.addEventListener('blur', outsideClickListener);
       input.addEventListener('keydown', enterKeyListener);
     });
   }
