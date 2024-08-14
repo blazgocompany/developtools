@@ -73,9 +73,9 @@ function renameFile(fileId, newName) {
             filenameElement.textContent = result.file.Name;
           }
         }
-        alert('File renamed successfully');
+        window.location.refresh()
       } else {
-        alert('Failed to rename file: ' + result.message);
+        alert('Failed to rename file');
       }
     })
     .catch(error => {
@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const response = await fetch('/internal/createfile.blazgo', { method: 'POST' });
         const data = await response.json();
         if (response.ok) {
-          alert(`File created successfully with ID: ${data.id}`);
+          window.location.refresh()
           // Optionally update the file list here
         } else {
           alert(`Error: ${data.message}`);
@@ -125,7 +125,7 @@ function makeFileEditable(fileElement) {
       const currentName = filenameElement.textContent.trim();
       const input = document.createElement('input');
       input.type = 'text';
-      input.style.background = "black";
+      input.style.background = "transparent";
       input.style.border = "none";
       input.value = currentName;
       filenameElement.innerHTML = '';
@@ -179,7 +179,7 @@ fetch("/internal/getfiles.blazgo")
       fileElement.innerHTML = `
         <div class="filename">${escapedName}</div>
         <div class="filedate">${timeAgo(file.modifieddate)}</div>
-        <div class="openbtn" onclick="openFile('${file.uniqueid}')">
+        <div class="openbtn" onclick="openFile('${file.unique_id}')">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
             <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5" />
             <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z" />
