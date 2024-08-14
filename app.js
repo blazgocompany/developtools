@@ -1,54 +1,40 @@
 const express = require("express");
-const { Client } = require("pg");
+const { Pool } = require("pg");
 const path = require("path");
 const fs = require("fs");
-const app = express();
 const crypto = require("crypto");
+
+const app = express();
 const port = process.env.PORT || 3000;
+
+const pool = new Pool({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  ssl: true,
+});
+
+// Helper function to generate a random string
+function generateRandomString(length = 10) {
+  return crypto.randomBytes(length).toString('hex');
+}
+
+// Helper function to hash a string
 function hashAndTruncate(input, length = 64) {
-  // Create a SHA-256 hash of the input string
   const hash = crypto.createHash("sha256");
   hash.update(input);
   const fullHash = hash.digest("hex");
-
-  // Truncate the hash to the specified length
   return fullHash.slice(0, length);
 }
+
 app.use(express.json());
-// Serve static files
-app.use(
-  "/resources/home",
-  express.static(path.join(__dirname, "pages", "home"))
-);
-app.use(
-  "/resources/editor",
-  express.static(path.join(__dirname, "pages", "editor"))
-);
+app.use("/resources/home", express.static(path.join(__dirname, "pages", "home")));
+app.use("/resources/editor", express.static(path.join(__dirname, "pages", "editor")));
 
-let Database = {
-  connect: function () {
-    const client = new Client({
-      host: process.env.DB_HOST,
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
-      ssl: true,
-    });
-    this.isConnected = true;
-    client.connect();
-    return client;
-  },
-  disconnect: function (client) {
-    client.end();
-  },
-  isConnected: false,
-};
-
+// Serve the home page
 app.get("/", (req, res) => {
-  // Path to the file you want to serve
   const filePath = path.join(__dirname, "pages", "home", "component.html");
-
-  // Read the file and send it as a response
   fs.readFile(filePath, "utf8", (err, data) => {
     if (err) {
       res.status(500).send("We aren't able to fetch that file.");
@@ -59,43 +45,55 @@ app.get("/", (req, res) => {
   });
 });
 
-app.get("/internal/getfiles.blazgo", (req, res) => {
-  console.log("hit");
-  let db = Database.connect();
-  console.log("connected");
-  db.query("SELECT * FROM Animator_Files", (err, result) => {
-    console.log("inside");
-    if (err) {
-      console.log("error");
-      console.error(err.stack);
-      res.status(500).send("Error fetching data");
-    } else {
-      console.log("sent");
-      res.json(result);
-      db.end();
-    }
-  });
-});
+// Create a new file with a random string as identifier
+app.post("/internal/createfile.blazgo", async (req, res) => {
+  const { name, data } = req.body;
+  const randomString = generateRandomString(); // Generate a unique string
 
-app.post("/internal/deletefile.blazgo", async (req, res) => {
-  console.log("Request Body:", req.body);
-
-  const { id } = req.body;
-
-  if (!id) {
-    return res
-      .status(400)
-      .json({ success: false, message: "File ID is required" });
+  if (!name || !data) {
+    return res.status(400).json({ success: false, message: "File name and data are required" });
   }
 
-  const client = Database.connect(); // Use your existing Database object
-
+  const client = await pool.connect();
   try {
+    const encodedData = Buffer.from(data, "utf-8");
     const result = await client.query(
-      "DELETE FROM Animator_Files WHERE id = $1 RETURNING *",
-      [id]
+      "INSERT INTO Animator_Files (name, data, unique_id) VALUES ($1, $2, $3) RETURNING id",
+      [name, encodedData, randomString]
     );
+    res.json({ success: true, id: result.rows[0].id, unique_id: randomString });
+  } catch (err) {
+    console.error("Error creating file:", err.stack);
+    res.status(500).json({ success: false, message: "Error creating file" });
+  } finally {
+    client.release();
+  }
+});
 
+// Get files for the file list
+app.get("/internal/getfiles.blazgo", async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const result = await client.query("SELECT id, name, modifieddate, unique_id FROM Animator_Files");
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Error fetching data:", err.stack);
+    res.status(500).send("Error fetching data");
+  } finally {
+    client.release();
+  }
+});
+
+// Delete a file by its unique ID
+app.post("/internal/deletefile.blazgo", async (req, res) => {
+  const { unique_id } = req.body;
+  if (!unique_id) {
+    return res.status(400).json({ success: false, message: "Unique ID is required" });
+  }
+
+  const client = await pool.connect();
+  try {
+    const result = await client.query("DELETE FROM Animator_Files WHERE unique_id = $1 RETURNING *", [unique_id]);
     if (result.rowCount > 0) {
       res.json({ success: true, message: "File deleted successfully" });
     } else {
@@ -105,90 +103,22 @@ app.post("/internal/deletefile.blazgo", async (req, res) => {
     console.error("Error executing query:", err.stack);
     res.status(500).json({ success: false, message: "Error deleting file" });
   } finally {
-    client.end(); // Ensure client is disconnected
+    client.release();
   }
 });
 
-app.get("/internal/createfile.blazgo", async (req, res) => {
-  const client = Database.connect();
-  try {
-    const result = await client.query(
-      "INSERT INTO Animator_Files (Name, Data) VALUES ($1, $2) RETURNING id",
-      ["Untitled File", Buffer.from("W10=")]
-    );
-
-    if (result.rowCount > 0) {
-      const newId = result.rows[0].id; // Assuming 'id' is the column name for the primary key
-      res.json({ success: true, id: newId });
-      app.get(
-        "/animations/" + hashAndTruncate(result.rows[0].id.toString()),
-        (req, res) => {
-          console.log(hashAndTruncate(result.rows[0].id.toString()))
-          let db = Database.connect();
-          console.log("connected");
-          db.query("SELECT * FROM Animator_Files WHERE id = " + result.rows[0].id, (err, result) => {
-            console.log("inside");
-            if (err) {
-              console.log("error");
-              console.error(err.stack);
-              res.status(500).send("Error fetching data");
-            } else {
-              var data = Buffer.toString(result.rows[0].data)
-              data = Buffer.from(data, 'base64')
-              data = data.toString('utf-8')
-              const filePath = path.join(__dirname, "pages", "editor", "component.html");
-
-              // Read the file and send it as a response
-              fs.readFile(filePath, "utf8", (err, data) => {
-                if (err) {
-                  res.status(500).send("We aren't able to fetch that file.");
-                  console.error(err);
-                  return;
-                }
-                res.send(data + "<script>importTweensFromJSON(`" + data + "`)</script>");
-              });
-              
-            }
-          });
-        }
-      );
-    } else {
-      res.status(404).json({ success: false, message: "File not found" });
-    }
-  } catch (err) {
-    console.error("Error executing query:", err.stack);
-    res.status(500).json({ success: false, message: "Error inserting file" });
-  } finally {
-    client.end(); // Ensure client is disconnected
-  }
-});
-
+// Rename a file by its unique ID
 app.post("/internal/renamefile.blazgo", async (req, res) => {
-  console.log("Request Body:", req.body);
-
-  const { id, newName } = req.body;
-
-  if (!id || !newName) {
-    return res
-      .status(400)
-      .json({ success: false, message: "File ID and new name are required" });
+  const { unique_id, newName } = req.body;
+  if (!unique_id || !newName) {
+    return res.status(400).json({ success: false, message: "Unique ID and new name are required" });
   }
 
-  const client = Database.connect(); // Use your existing Database object
-
+  const client = await pool.connect();
   try {
-    // Update the file name where the ID matches
-    const result = await client.query(
-      "UPDATE Animator_Files SET Name = $1 WHERE id = $2 RETURNING *",
-      [newName, id]
-    );
-
+    const result = await client.query("UPDATE Animator_Files SET name = $1 WHERE unique_id = $2 RETURNING *", [newName, unique_id]);
     if (result.rowCount > 0) {
-      res.json({
-        success: true,
-        message: "File renamed successfully",
-        file: result.rows[0],
-      });
+      res.json({ success: true, message: "File renamed successfully", file: result.rows[0] });
     } else {
       res.status(404).json({ success: false, message: "File not found" });
     }
@@ -196,53 +126,62 @@ app.post("/internal/renamefile.blazgo", async (req, res) => {
     console.error("Error executing query:", err.stack);
     res.status(500).json({ success: false, message: "Error renaming file" });
   } finally {
-    client.end(); // Ensure client is disconnected
+    client.release();
   }
 });
 
+// Update file data by its unique ID
 app.post("/internal/updatefiledata.blazgo", async (req, res) => {
-  console.log("Request Body:", req.body);
-
-  const { id, newData } = req.body;
-
-  if (!id || !newData) {
-    return res
-      .status(400)
-      .json({ success: false, message: "File ID and new data are required" });
+  const { unique_id, newData } = req.body;
+  if (!unique_id || !newData) {
+    return res.status(400).json({ success: false, message: "Unique ID and new data are required" });
   }
 
-  const client = Database.connect(); // Use your existing Database object
-
+  const client = await pool.connect();
   try {
-    // Encode the new data into a Buffer
     const encodedData = Buffer.from(newData, "utf-8");
-
-    // Update the file data where the ID matches
-    const result = await client.query(
-      "UPDATE Animator_Files SET Data = $1 WHERE id = $2 RETURNING *",
-      [encodedData, id]
-    );
-
+    const result = await client.query("UPDATE Animator_Files SET data = $1 WHERE unique_id = $2 RETURNING *", [encodedData, unique_id]);
     if (result.rowCount > 0) {
-      res.json({
-        success: true,
-        message: "File data updated successfully",
-        file: result.rows[0],
-      });
+      res.json({ success: true, message: "File data updated successfully", file: result.rows[0] });
     } else {
       res.status(404).json({ success: false, message: "File not found" });
     }
   } catch (err) {
     console.error("Error executing query:", err.stack);
-    res
-      .status(500)
-      .json({ success: false, message: "Error updating file data" });
+    res.status(500).json({ success: false, message: "Error updating file data" });
   } finally {
-    client.end(); // Ensure client is disconnected
+    client.release();
   }
 });
 
-// Start the server
+// Serve animation page with file data based on unique ID
+app.get("/animations/:unique_id", async (req, res) => {
+  const unique_id = req.params.unique_id;
+  const client = await pool.connect();
+  try {
+    const result = await client.query("SELECT * FROM Animator_Files WHERE unique_id = $1", [unique_id]);
+    if (result.rowCount > 0) {
+      const data = Buffer.from(result.rows[0].data).toString('utf-8');
+      const filePath = path.join(__dirname, "pages", "editor", "component.html");
+      fs.readFile(filePath, "utf8", (err, fileData) => {
+        if (err) {
+          res.status(500).send("We aren't able to fetch that file.");
+          console.error(err);
+          return;
+        }
+        res.send(fileData + `<script>importTweensFromJSON(\`${data}\`)</script>`);
+      });
+    } else {
+      res.status(404).json({ success: false, message: "File not found" });
+    }
+  } catch (err) {
+    console.error("Error fetching data:", err.stack);
+    res.status(500).send("Error fetching data");
+  } finally {
+    client.release();
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
 });
