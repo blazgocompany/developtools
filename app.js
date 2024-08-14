@@ -106,14 +106,14 @@ app.post("/internal/deletefile.blazgo", async (req, res) => {
 
 // Rename a file by its unique ID
 app.post("/internal/renamefile.blazgo", async (req, res) => {
-  const { unique_id, newName } = req.body;
-  if (!unique_id || !newName) {
+  const { id, newName } = req.body;
+  if (!id || !newName) {
     return res.status(400).json({ success: false, message: "Unique ID and new name are required" });
   }
 
   const client = await pool.connect();
   try {
-    const result = await client.query("UPDATE Animator_Files SET name = $1 WHERE unique_id = $2 RETURNING *", [newName, unique_id]);
+    const result = await client.query("UPDATE Animator_Files SET name = $1 WHERE unique_id = $2 RETURNING *", [newName, id]);
     if (result.rowCount > 0) {
       res.json({ success: true, message: "File renamed successfully", file: result.rows[0] });
     } else {
