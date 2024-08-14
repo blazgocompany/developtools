@@ -188,10 +188,10 @@ app.get("/test", async (req, res) => {
   try {
     // Acquire a connection from the pool
     client = await pool.connect();
-    
+
     // Perform the database query
     const result = await client.query("ALTER TABLE Animator_Files ADD unique_id varchar(255)");
-    
+
     // Log the result
     console.log(result);
 

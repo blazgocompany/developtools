@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (createButton) {
     createButton.addEventListener('click', async () => {
       try {
-        const response = await fetch('/internal/createfile.blazgo', { method: 'GET' });
+        const response = await fetch('/internal/createfile.blazgo', { method: 'POST' });
         const data = await response.json();
         if (response.ok) {
           alert(`File created successfully with ID: ${data.id}`);
