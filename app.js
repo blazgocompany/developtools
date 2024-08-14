@@ -55,8 +55,8 @@ app.post("/internal/createfile.blazgo", async (req, res) => {
   const client = await pool.connect();
   try {
     const result = await client.query(
-      "INSERT INTO Animator_Files (unique_id) VALUES ($1) RETURNING id",
-      [randomString]
+      "INSERT INTO Animator_Files (Name, Data, unique_id) VALUES ($1, $2, $3) RETURNING id",
+      ["Untitled File", "W10=", randomString]
     );
     res.json({ success: true, id: result.rows[0].id, unique_id: randomString });
   } catch (err) {
