@@ -103,6 +103,53 @@ app.post("/internal/login.blazgo", async (req, res) => {
   }
 });
 
+
+app.post("/internal/signup.blazgo", async (req, res) => {
+  const { username, password } = req.body;
+  let client;
+
+  try {
+    // Validate input
+    if (!username || !password) {
+      return res.status(400).send("Username and password are required");
+    }
+
+    // Hash the password
+    const saltRounds = 10; // Adjust as needed
+    const passwordHash = await bcrypt.hash(password, saltRounds);
+
+    // Generate a new session ID (optional)
+    const sessionId = crypto.randomBytes(16).toString('hex');
+
+    // Acquire a connection from the pool
+    client = await pool.connect();
+
+    // Insert the new user into the Users table
+    const result = await client.query(
+      "INSERT INTO Users (name, password_hash, sessionId) VALUES ($1, $2, $3) RETURNING id",
+      [username, passwordHash, sessionId]
+    );
+
+    // Check if the insertion was successful
+    if (result.rowCount > 0) {
+      // Optionally set the session ID in a cookie or other session management system
+      res.cookie('sessionId', sessionId, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+      res.status(200).send("Signup successful");
+    } else {
+      res.status(500).send("Signup failed");
+    }
+  } catch (error) {
+    // Log and handle the error
+    console.error('Error during signup:', error);
+    res.status(500).send("An error occurred during signup");
+  } finally {
+    // Ensure the connection is always released
+    if (client) {
+      client.release();
+    }
+  }
+});
+
 app.get("/internal/checkauth.blazgo", async (req, res) => {
   // Get the session ID from cookies or headers
   const sessionId = getCookie(req, "sessionId"); // Adjust based on where the session ID is stored
@@ -135,7 +182,7 @@ app.get("/internal/checkauth.blazgo", async (req, res) => {
 
 
 app.get("/onboard", (req, res) => {
-  const filePath = path.join(__dirname, "pages", "onboard", "component.html");
+  const filePath = path.join(__dirname, "pages", "onboard", "signup.html");
   fs.readFile(filePath, "utf8", (err, data) => {
     if (err) {
       res.status(500).send("We aren't able to fetch that file.");
