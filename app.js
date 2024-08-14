@@ -45,6 +45,94 @@ app.get("/", (req, res) => {
   });
 });
 
+
+app.post("/internal/login.blazgo", async (req, res) => {
+  const { username, password } = req.body;
+  const client = await pool.connect();
+
+  try {
+    const result = await client.query(
+      "SELECT id, password_hash FROM Users WHERE name = $1",
+      [username]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(401).send("Invalid credentials");
+    }
+
+    const user = result.rows[0];
+
+    // Verify password with bcrypt
+    const match = await bcrypt.compare(password, user.password_hash);
+
+    if (match) {
+      // Generate a new session ID and update the user's record
+      const sessionId = crypto.randomBytes(16).toString('hex');
+      await client.query(
+        "UPDATE Users SET sessionId = $1 WHERE id = $2",
+        [sessionId, user.id]
+      );
+
+      // Set the session ID in a cookie
+      res.cookie('sessionId', sessionId, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+      res.status(200).send("Login successful");
+    } else {
+      res.status(401).send("Invalid credentials");
+    }
+  } catch (err) {
+    console.error("Error during login:", err.stack);
+    res.status(500).send("Error during login");
+  } finally {
+    client.release();
+  }
+});
+
+
+app.get("/internal/checkauth.blazgo", async (req, res) => {
+  // Get the session ID from cookies or headers
+  const sessionId = req.cookies.sessionId; // Adjust based on where the session ID is stored
+  
+  if (!sessionId) {
+    return res.json({ isAuthenticated: false });
+  }
+
+  const client = await pool.connect();
+  try {
+    const result = await client.query(
+      "SELECT id FROM Users WHERE sessionId = $1",
+      [sessionId]
+    );
+
+    if (result.rows.length > 0) {
+      // User is authenticated
+      res.json({ isAuthenticated: true });
+    } else {
+      // User is not authenticated
+      res.json({ isAuthenticated: false });
+    }
+  } catch (err) {
+    console.error("Error checking authentication:", err.stack);
+    res.status(500).send("Error checking authentication");
+  } finally {
+    client.release();
+  }
+});
+
+
+app.get("/onboard", (req, res) => {
+  const filePath = path.join(__dirname, "pages", "onboard", "component.html");
+  fs.readFile(filePath, "utf8", (err, data) => {
+    if (err) {
+      res.status(500).send("We aren't able to fetch that file.");
+      console.error(err);
+      return;
+    }
+    res.send(data);
+  });
+});
+
+
+
 // Create a new file with a random string as identifier
 app.post("/internal/createfile.blazgo", async (req, res) => {
   const { name, data } = req.body;
@@ -71,7 +159,17 @@ app.post("/internal/createfile.blazgo", async (req, res) => {
 app.get("/internal/getfiles.blazgo", async (req, res) => {
   const client = await pool.connect();
   try {
-    const result = await client.query("SELECT id, name, modifieddate, unique_id FROM Animator_Files");
+    // Assume the user ID is stored in the session
+    const userId = req.session.userId; // Adjust based on your session management
+    
+    if (!userId) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const result = await client.query(
+      "SELECT id, name, modifieddate, unique_id FROM Animator_Files WHERE user_id = $1",
+      [userId]
+    );
     res.json(result.rows);
   } catch (err) {
     console.error("Error fetching data:", err.stack);
@@ -80,6 +178,7 @@ app.get("/internal/getfiles.blazgo", async (req, res) => {
     client.release();
   }
 });
+
 
 // Delete a file by its unique ID
 app.post("/internal/deletefile.blazgo", async (req, res) => {
@@ -186,20 +285,32 @@ app.get("/test", async (req, res) => {
     // Acquire a connection from the pool
     client = await pool.connect();
 
-    // Perform the database query
-    const result = await client.query("ALTER TABLE Animator_Files ADD unique_id varchar(255)");
+    // Define the SQL query to create or update the Users table
+    const query = `
+      CREATE TABLE IF NOT EXISTS Users (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) UNIQUE NOT NULL,
+        password_hash VARCHAR(255) NOT NULL,
+        sessionId VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+      -- Additional modifications can be added here if needed
+    `;
+
+    // Execute the SQL query
+    const result = await client.query(query);
 
     // Log the result
     console.log(result);
 
-    // Send a success response (optional)
-    res.send("Table updated successfully");
+    // Send a success response
+    res.send("Users table created or updated successfully");
   } catch (error) {
     // Log and handle the error
     console.error('Error executing query:', error);
 
     // Send an error response
-    res.status(500).send("An error occurred while updating the table");
+    res.status(500).send("An error occurred while creating or updating the table");
   } finally {
     // Ensure the connection is always released
     if (client) {
@@ -207,6 +318,7 @@ app.get("/test", async (req, res) => {
     }
   }
 });
+
 
 
 app.listen(port, () => {

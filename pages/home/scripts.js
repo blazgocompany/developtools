@@ -1,3 +1,9 @@
+document.addEventListener('DOMContentLoaded', async () => {
+  const isAuthenticated = await checkAuth();
+  if (!isAuthenticated) {
+    window.location.href = '/onboard';
+    return;
+  }
 // Function to format timestamps into a readable "time ago" format
 function timeAgo(timestamp) {
   const now = new Date();
@@ -203,3 +209,17 @@ fetch("/internal/getfiles.blazgo")
 function openFile(fileId) {
   window.location.href = `/animations/${fileId}`;
 }
+
+
+async function checkAuth() {
+  try {
+    const response = await fetch('/internal/checkauth.blazgo', { method: 'GET' });
+    if (!response.ok) throw new Error('Not authenticated');
+    const data = await response.json();
+    return data.isAuthenticated;
+  } catch (error) {
+    console.error('Authentication check failed:', error);
+    return false;
+  }
+}
+
