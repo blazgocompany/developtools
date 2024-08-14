@@ -50,9 +50,7 @@ app.post("/internal/createfile.blazgo", async (req, res) => {
   const { name, data } = req.body;
   const randomString = generateRandomString(); // Generate a unique string
 
-  if (!name || !data) {
-    return res.status(400).json({ success: false, message: "File name and data are required" });
-  }
+
 
   const client = await pool.connect();
   try {
@@ -92,7 +90,7 @@ app.post("/internal/deletefile.blazgo", async (req, res) => {
 
   const client = await pool.connect();
   try {
-    const result = await client.query("DELETE FROM Animator_Files WHERE unique_id = $1 RETURNING *", [unique_id]);
+    const result = await client.query("DELETE FROM Animator_Files WHERE id = $1 RETURNING *", [unique_id]);
     if (result.rowCount > 0) {
       res.json({ success: true, message: "File deleted successfully" });
     } else {
