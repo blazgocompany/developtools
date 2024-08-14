@@ -3,7 +3,7 @@ const { Pool } = require("pg");
 const path = require("path");
 const fs = require("fs");
 const crypto = require("crypto");
-
+const bcrypt = require("bcrypt");
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -27,7 +27,6 @@ function hashAndTruncate(input, length = 64) {
   const fullHash = hash.digest("hex");
   return fullHash.slice(0, length);
 }
-
 app.use(express.json());
 app.use("/resources/home", express.static(path.join(__dirname, "pages", "home")));
 app.use("/animations/resources/editor", express.static(path.join(__dirname, "pages", "editor")));
@@ -74,8 +73,25 @@ app.post("/internal/login.blazgo", async (req, res) => {
       );
 
       // Set the session ID in a cookie
-      res.cookie('sessionId', sessionId, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
-      res.status(200).send("Login successful");
+      res.status(200).send(`Please Wait...
+        <script>
+        // Function to set a cookie
+        function setCookie(name, value, days) {
+            var expires = "";
+            if (days) {
+                var date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                expires = "; expires=" + date.toUTCString();
+            }
+            document.cookie = name + "=" + (value || "") + expires + "; path=/";
+        }
+
+        // Set the cookie
+        setCookie('sessionID', '${sessionId}', 1); // Cookie expires in 1 day
+
+        // Redirect to '/'
+        window.location.href = '/';
+    </script>`);
     } else {
       res.status(401).send("Invalid credentials");
     }
@@ -90,7 +106,7 @@ app.post("/internal/login.blazgo", async (req, res) => {
 
 app.get("/internal/checkauth.blazgo", async (req, res) => {
   // Get the session ID from cookies or headers
-  const sessionId = req.cookies.sessionId; // Adjust based on where the session ID is stored
+  const sessionId = getCookie(req, "sessionId"); // Adjust based on where the session ID is stored
   
   if (!sessionId) {
     return res.json({ isAuthenticated: false });
@@ -130,6 +146,34 @@ app.get("/onboard", (req, res) => {
     res.send(data);
   });
 });
+
+function getCookie(req, name) {
+  // Retrieve the cookie header
+  var cookieHeader = req.headers.cookie;
+  
+  // If there are no cookies, return undefined
+  if (!cookieHeader) {
+      return undefined;
+  }
+  
+  // Split the cookie header into individual cookies
+  var cookies = cookieHeader.split('; ');
+  
+  // Loop through each cookie and find the one with the matching name
+  for (var i = 0; i < cookies.length; i++) {
+      var parts = cookies[i].split('=');
+      var cookieName = parts[0];
+      var cookieValue = parts[1];
+      
+      // If the name matches, return the value
+      if (cookieName === name) {
+          return cookieValue;
+      }
+  }
+  
+  // If the cookie is not found, return undefined
+  return undefined;
+}
 
 
 
