@@ -3,7 +3,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (!isAuthenticated) {
     window.location.href = '/onboard';
     return;
-  })
+  }
+});
+
 // Function to format timestamps into a readable "time ago" format
 function timeAgo(timestamp) {
   const now = new Date();
@@ -127,7 +129,7 @@ function makeFileEditable(fileElement) {
   const fileId = fileElement.id.replace('file-', '');
 
   if (filenameElement) {
-    filenameElement.addEventListener('dblclick', function() {
+    filenameElement.addEventListener('dblclick', function () {
       const currentName = filenameElement.textContent.trim();
       const input = document.createElement('input');
       input.type = 'text';
