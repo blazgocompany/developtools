@@ -182,6 +182,13 @@ app.get("/animations/:unique_id", async (req, res) => {
   }
 });
 
+
+app.get("/test", (req, res) => {
+  var pool = await pool.connect()
+  pool.query("ALTER TABLE Animator_Files ADD unique_id varchar(255)")
+  pool.release()
+})
+
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
 });
