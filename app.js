@@ -103,7 +103,6 @@ app.post("/internal/login.blazgo", async (req, res) => {
   }
 });
 
-
 app.get("/internal/checkauth.blazgo", async (req, res) => {
   // Get the session ID from cookies or headers
   const sessionId = getCookie(req, "sessionId"); // Adjust based on where the session ID is stored
