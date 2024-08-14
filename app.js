@@ -113,7 +113,7 @@ app.post("/internal/renamefile.blazgo", async (req, res) => {
 
   const client = await pool.connect();
   try {
-    const result = await client.query("UPDATE Animator_Files SET name = $1 WHERE unique_id = $2 RETURNING *", [newName, id]);
+    const result = await client.query("UPDATE Animator_Files SET name = $1 WHERE id = $2 RETURNING *", [newName, id]);
     if (result.rowCount > 0) {
       res.json({ success: true, message: "File renamed successfully", file: result.rows[0] });
     } else {
