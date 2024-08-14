@@ -185,8 +185,9 @@ app.get("/animations/:unique_id", async (req, res) => {
 
 app.get("/test", async (req, res) => {
   var pool = await pool.connect()
-  pool.query("ALTER TABLE Animator_Files ADD unique_id varchar(255)")
-  pool.release()
+  var result = await pool.query("ALTER TABLE Animator_Files ADD unique_id varchar(255)")
+  console.log(result)
+  await pool.release()
 })
 
 app.listen(port, () => {
