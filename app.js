@@ -29,7 +29,7 @@ function hashAndTruncate(input, length = 64) {
 }
 
 app.use(express.json());
-app.use("/resources/home", express.static(path.join(__dirname, "pages", "home")));
+app.use("/animations/resources/home", express.static(path.join(__dirname, "pages", "home")));
 app.use("/resources/editor", express.static(path.join(__dirname, "pages", "editor")));
 
 // Serve the home page
