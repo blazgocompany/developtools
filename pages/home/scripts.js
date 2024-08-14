@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (!isAuthenticated) {
     window.location.href = '/onboard';
     return;
-  }
+  })
 // Function to format timestamps into a readable "time ago" format
 function timeAgo(timestamp) {
   const now = new Date();
