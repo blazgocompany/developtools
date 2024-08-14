@@ -378,7 +378,7 @@ $('#addElements').onclick = () => {
 function importTweensFromJSON(jsonString) {
   try {
     // Parse the JSON string
-    const data = JSON.parse(jsonString);
+    const data = JSON.parse(atob(jsonString));
 
     // Clear existing tweens and timeline
     tweenStack = [];
