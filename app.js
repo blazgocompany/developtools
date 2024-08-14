@@ -184,11 +184,33 @@ app.get("/animations/:unique_id", async (req, res) => {
 
 
 app.get("/test", async (req, res) => {
-  var pool = await pool.connect()
-  var result = await pool.query("ALTER TABLE Animator_Files ADD unique_id varchar(255)")
-  console.log(result)
-  await pool.release()
-})
+  let client;
+  try {
+    // Acquire a connection from the pool
+    client = await pool.connect();
+    
+    // Perform the database query
+    const result = await client.query("ALTER TABLE Animator_Files ADD unique_id varchar(255)");
+    
+    // Log the result
+    console.log(result);
+
+    // Send a success response (optional)
+    res.send("Table updated successfully");
+  } catch (error) {
+    // Log and handle the error
+    console.error('Error executing query:', error);
+
+    // Send an error response
+    res.status(500).send("An error occurred while updating the table");
+  } finally {
+    // Ensure the connection is always released
+    if (client) {
+      client.release();
+    }
+  }
+});
+
 
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
