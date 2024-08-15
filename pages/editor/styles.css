@@ -161,6 +161,14 @@ input {
     background: radial-gradient(circle at 0 80%, #fe5858, #ffb3b3);
 }
 
+.save-btn {
+    position: absolute;
+    right: 0vw;
+    top: 36px;
+    transform: translate(-10%);
+    background: radial-gradient(circle at 0 80%, #fe5858, #ffb3b3);
+}
+
 .code-box {
     
     display: none;

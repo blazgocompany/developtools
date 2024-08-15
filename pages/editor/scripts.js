@@ -7,6 +7,49 @@ let notDone = [];
 // Initialize the timeline variable
 let tl = gsap.timeline({ repeat: -1 });
 
+
+async function updateFileData() {
+  // Get the current URL
+  const currentUrl = window.location.href;
+
+  // Extract the unique_id from the last part of the URL
+  const urlParts = currentUrl.split('/');
+  const uniqueId = urlParts[urlParts.length - 1]; // Assuming the unique_id is the last part of the URL
+
+  const apiUrl = `/internal/updatefiledata.blazgo`; // Endpoint without the unique_id
+
+  // Prepare the data to be sent in the request body
+  const requestBody = {
+    unique_id: uniqueId,
+    newData: atob(JSON.parse(tweenStack))
+  };
+
+  try {
+    // Send a POST request to the server
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    });
+
+    // Handle the response
+    const result = await response.json();
+
+    if (response.ok) {
+      console.log('Success:', result);
+    } else {
+      console.error('Error:', result.message);
+    }
+  } catch (error) {
+    console.error('Request failed:', error);
+  }
+}
+
+
+
+
 function getElementsInRange(rangeString) {
   // Helper function to parse ranges and individual numbers
   const parseRange = (str) => {
