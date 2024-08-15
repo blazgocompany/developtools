@@ -387,7 +387,8 @@ function generate() {
   $(".sidebar").style.zIndex = 100
   const genCode = btoa(JSON.stringify(tweenStack));
   $('.code-box').style.display = 'block';
-  const fullCode = `/*Using ZoCode (easiest option)*/
+  const fullCode = `/*First, check Animator-Studio/AS-beta on GitHub to know how to use this.
+  /*Using ZoCode (easiest option)*/
     var anim = animix.fromZoCode("${genCode}");
     anim.setup({/*Setup Variables*/});
     
