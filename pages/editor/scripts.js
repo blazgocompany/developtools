@@ -39,6 +39,10 @@ async function updateFileData() {
 
     if (response.ok) {
       console.log('Success:', result);
+      $(".save-btn").innerHTML = "Saved!"
+      setTimeout(() => {
+        $(".save-btn").innerHTML = "Save"
+      }, 1000);
     } else {
       console.error('Error:', result.message);
     }
@@ -202,18 +206,18 @@ $('.add-tween').onclick = () => {
     tween.classList.remove('connected-both');
     tween.classList.remove('connected-left');
     tween.classList.remove('connected-right');
-    
+
     const container = $('.timeline'); // Assuming $ works like querySelector
     const containerRect = container.getBoundingClientRect();
     const element = event.target;
     const elementRect = element.getBoundingClientRect();
     const dropX = event.clientX;
     const dropY = event.clientY;
-    
+
     // Calculate the element's new position
     const newLeft = dropX - containerRect.left - (elementRect.width / 2);
     const newTop = dropY - containerRect.top - (elementRect.height / 2);
-    
+
     // Ensure the element stays within the container bounds
     const clampedLeft = Math.max(
       0,
@@ -228,12 +232,12 @@ $('.add-tween').onclick = () => {
     element.style.position = 'absolute';
     element.style.left = `${clampedLeft}px`;
     element.style.top = `${clampedTop}px`;
-    
+
     // Trigger additional events or functions if needed
     element.click();
     updateParams();
     recalculate();
-});
+  });
 
 
   tween.addEventListener('dblclick', (event) => {
@@ -372,8 +376,8 @@ function updateParams() {
   currTween.easing = $('#easingFunction').value;
 
   editingTween.style.width = (Number(currTween.duration)
-   + getElementsInRange(currTween.elements).length - 1
-   * currTween.stagger)*32 + "px"
+    + getElementsInRange(currTween.elements).length - 1
+    * currTween.stagger) * 32 + "px"
   // Return the structured object
   // recalculate();
   return currTween;
@@ -555,41 +559,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Show the context menu on right-click
   document.querySelector('.timeline').addEventListener('contextmenu', (e) => {
-      e.preventDefault();
-      if (e.target.classList.contains('tween')) {
-          selectedTween = e.target;
-          contextMenu.style.display = 'block';
-          contextMenu.style.left = `${e.pageX}px`;
-          contextMenu.style.top = `${e.pageY}px`;
-      }
+    e.preventDefault();
+    if (e.target.classList.contains('tween')) {
+      selectedTween = e.target;
+      contextMenu.style.display = 'block';
+      contextMenu.style.left = `${e.pageX}px`;
+      contextMenu.style.top = `${e.pageY}px`;
+    }
   });
 
   // Hide the context menu on left click or click outside
   document.addEventListener('click', (e) => {
-      if (!contextMenu.contains(e.target)) {
-          contextMenu.style.display = 'none';
-      }
+    if (!contextMenu.contains(e.target)) {
+      contextMenu.style.display = 'none';
+    }
   });
 
   // Handle context menu item clicks
   document.getElementById('delete-tween').addEventListener('click', () => {
-      if (selectedTween) {
-        const tweenIndex = tweenStack.findIndex(tween => tween.element == selectedTween);
+    if (selectedTween) {
+      const tweenIndex = tweenStack.findIndex(tween => tween.element == selectedTween);
 
-          // Remove the tween from the timeline
-          selectedTween.remove();
+      // Remove the tween from the timeline
+      selectedTween.remove();
 
-          // Find and remove the tween from the tweenstack
-          const tweenId = selectedTween.getAttribute('data-id');
-          if (tweenIndex !== -1) {
-              tweenStack.splice(tweenIndex, 1); // Remove the tween from the tweenstack
-          }
-
-          // Optionally, recalculate or refresh the timeline
-          recalculate(); // Adjust as needed
-
-          contextMenu.style.display = 'none';
+      // Find and remove the tween from the tweenstack
+      const tweenId = selectedTween.getAttribute('data-id');
+      if (tweenIndex !== -1) {
+        tweenStack.splice(tweenIndex, 1); // Remove the tween from the tweenstack
       }
+
+      // Optionally, recalculate or refresh the timeline
+      recalculate(); // Adjust as needed
+
+      contextMenu.style.display = 'none';
+    }
   });
 });
 

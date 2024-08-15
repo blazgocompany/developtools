@@ -1,43 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animator Studio PRO</title>
+    <style>
+        /* General Body Styles */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #000;
+            color: #fff;
+            text-align: center;
+        }
+
+        /* Hero Section Styles */
+        .hero {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 1));
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .hero h1 {
+            font-size: 2.5em;
+            background: -webkit-linear-gradient(left, #ff007a, #ffb700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+            padding: 0;
+        }
+
+        .hero h2 {
+            font-size: 2em;
+            margin: 10px 0;
+        }
+
+        .hero p {
+            font-size: 0.9em;
+            color: #ccc;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .hero .buttons {
+            margin-top: 20px;
+        }
+
+        .hero .button {
+            display: inline-block;
+            text-decoration: none;
+            color: white;
+            background-color: #007bff;
+            padding: 15px 25px;
+            margin: 10px;
+            border-radius: 4px;
+            font-size: 1.2em;
+            transition: background-color 0.3s;
+        }
+
+        .hero .button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-  <h1>Login</h1>
-  <form id="loginForm">
-    <label for="username">Username:</label>
-    <input type="text" id="username" name="username" required>
-    <br>
-    <label for="password">Password:</label>
-    <input type="password" id="password" name="password" required>
-    <br>
-    <button type="submit">Login</button>
-  </form>
-  <script>
-    document.getElementById('loginForm').addEventListener('submit', async (event) => {
-      event.preventDefault();
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
-      
-      try {
-        const response = await fetch('/internal/login.blazgo', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password }),
-        });
-
-        if (response.ok) {
-          window.location.href = '/'; // Redirect to the main page after login
-        } else {
-          alert('Invalid credentials');
-        }
-      } catch (error) {
-        console.error('Error:', error);
-      }
-    });
-  </script>
+    <div class="hero">
+        <h1>Make animations in a snap with</h1>
+        <h2>Animator Studio PRO</h2>
+        <p>Animator Studio is currently in preview mode until September 1st. You can join today for free. Please document any issues you find on our GitHub repository Animator-Studio-PRO/ASP-beta.</p>
+        <div class="buttons">
+            <a href="/signup" class="button">Sign Up</a>
+            <a href="/login" class="button">Log In</a>
+        </div>
+    </div>
 </body>
 </html>
