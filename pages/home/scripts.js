@@ -81,7 +81,7 @@ function renameFile(fileId, newName) {
             filenameElement.textContent = result.file.Name;
           }
         }
-        window.location.refresh()
+        window.location.reload()
       } else {
         alert('Failed to rename file');
       }
@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const response = await fetch('/internal/createfile.blazgo', { method: 'POST' });
         const data = await response.json();
         if (response.ok) {
-          window.location.refresh()
+          window.location.reload()
           // Optionally update the file list here
         } else {
           alert(`Error: ${data.message}`);

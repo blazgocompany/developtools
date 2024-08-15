@@ -245,12 +245,24 @@ app.post("/internal/createfile.blazgo", async (req, res) => {
   }
 });
 
-// Get files for the file list
 app.get("/internal/getfiles.blazgo", async (req, res) => {
   const client = await pool.connect();
+
+  const sessionId = getCookie(req, "sessionId"); // Adjust based on where the session ID is stored
+  
+  if (!sessionId) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
   try {
     // Assume the user ID is stored in the session
-    const userId = req.session.userId; // Adjust based on your session management
+
+    const result = await client.query(
+      "SELECT id FROM Users WHERE sessionId = $1",
+      [sessionId]
+    );
+
+    const userId = result.rows[0].id; // Adjust based on your session management
     
     if (!userId) {
       return res.status(401).json({ error: "Unauthorized" });
