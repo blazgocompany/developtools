@@ -229,12 +229,32 @@ app.post("/internal/createfile.blazgo", async (req, res) => {
   const randomString = generateRandomString(); // Generate a unique string
 
 
+  const sessionId = getCookie(req, "sessionId"); // Adjust based on where the session ID is stored
+  
+  if (!sessionId) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
 
   const client = await pool.connect();
   try {
+
+
+
+    userquery = await client.query(
+      "SELECT id FROM Users WHERE sessionId = $1",
+      [sessionId]
+    );
+
+    const userId = userquery.rows[0].id; // Adjust based on your session management
+    
+    if (!userId) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+
     const result = await client.query(
-      "INSERT INTO Animator_Files (Name, Data, unique_id) VALUES ($1, $2, $3) RETURNING id",
-      ["Untitled File", "W10=", randomString]
+      "INSERT INTO Animator_Files (Name, Data, unique_id, user_id) VALUES ($1, $2, $3) RETURNING id",
+      ["Untitled File", "W10=", randomString, userquery]
     );
     res.json({ success: true, id: result.rows[0].id, unique_id: randomString });
   } catch (err) {
@@ -389,8 +409,7 @@ app.get("/test", async (req, res) => {
 
     // Define the SQL query to create or update the Users table
     const query = `
-      ALTER TABLE Animator_Files
-ADD COLUMN user_id INT;
+      TRUNCATE TABLE Animator_Files;
     `;
 
     // Execute the SQL query
