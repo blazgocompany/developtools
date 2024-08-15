@@ -16,7 +16,7 @@ async function updateFileData() {
   const urlParts = currentUrl.split('/');
   const uniqueId = urlParts[urlParts.length - 1]; // Assuming the unique_id is the last part of the URL
 
-  const apiUrl = `/internal/updatefiledata.blazgo`; // Endpoint without the unique_id
+  const apiUrl = `../internal/updatefiledata.blazgo`; // Endpoint without the unique_id
 
   // Prepare the data to be sent in the request body
   const requestBody = {

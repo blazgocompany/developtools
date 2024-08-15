@@ -304,14 +304,14 @@ app.get("/internal/getfiles.blazgo", async (req, res) => {
 
 // Delete a file by its unique ID
 app.post("/internal/deletefile.blazgo", async (req, res) => {
-  const { unique_id } = req.body;
-  if (!unique_id) {
+  const { id } = req.body;
+  if (!id) {
     return res.status(400).json({ success: false, message: "Unique ID is required" });
   }
 
   const client = await pool.connect();
   try {
-    const result = await client.query("DELETE FROM Animator_Files WHERE id = $1 RETURNING *", [unique_id]);
+    const result = await client.query("DELETE FROM Animator_Files WHERE id = $1 RETURNING *", [id]);
     if (result.rowCount > 0) {
       res.json({ success: true, message: "File deleted successfully" });
     } else {
