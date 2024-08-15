@@ -21,7 +21,7 @@ async function updateFileData() {
   // Prepare the data to be sent in the request body
   const requestBody = {
     unique_id: uniqueId,
-    newData: atob(JSON.parse(tweenStack))
+    newData: atob(JSON.stringify(tweenStack))
   };
 
   try {
