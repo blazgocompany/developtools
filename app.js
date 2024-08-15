@@ -182,7 +182,29 @@ app.get("/internal/checkauth.blazgo", async (req, res) => {
 
 
 app.get("/onboard", (req, res) => {
-  const filePath = path.join(__dirname, "pages", "onboard", "signup.html");
+  const filePath = path.join(__dirname, "pages", "onboard", "component.html");
+  fs.readFile(filePath, "utf8", (err, data) => {
+    if (err) {
+      res.status(500).send("We aren't able to fetch that file.");
+      console.error(err);
+      return;
+    }
+    res.send(data);
+  });
+});
+app.get("/login", (req, res) => {
+  const filePath = path.join(__dirname, "pages", "login", "component.html");
+  fs.readFile(filePath, "utf8", (err, data) => {
+    if (err) {
+      res.status(500).send("We aren't able to fetch that file.");
+      console.error(err);
+      return;
+    }
+    res.send(data);
+  });
+});
+app.get("/signup", (req, res) => {
+  const filePath = path.join(__dirname, "pages", "signup", "component.html");
   fs.readFile(filePath, "utf8", (err, data) => {
     if (err) {
       res.status(500).send("We aren't able to fetch that file.");
