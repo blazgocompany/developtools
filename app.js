@@ -257,7 +257,7 @@ app.get("/internal/getfiles.blazgo", async (req, res) => {
   try {
     // Assume the user ID is stored in the session
 
-    const result = await client.query(
+    var result = await client.query(
       "SELECT id FROM Users WHERE sessionId = $1",
       [sessionId]
     );
@@ -268,7 +268,7 @@ app.get("/internal/getfiles.blazgo", async (req, res) => {
       return res.status(401).json({ error: "Unauthorized" });
     }
 
-    const result = await client.query(
+    result = await client.query(
       "SELECT id, name, modifieddate, unique_id FROM Animator_Files WHERE user_id = $1",
       [userId]
     );
