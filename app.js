@@ -389,14 +389,8 @@ app.get("/test", async (req, res) => {
 
     // Define the SQL query to create or update the Users table
     const query = `
-      CREATE TABLE IF NOT EXISTS Users (
-        id SERIAL PRIMARY KEY,
-        name VARCHAR(255) UNIQUE NOT NULL,
-        password_hash VARCHAR(255) NOT NULL,
-        sessionId VARCHAR(255),
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-      -- Additional modifications can be added here if needed
+      ALTER TABLE Animator_Files
+ADD COLUMN user_id INT;
     `;
 
     // Execute the SQL query
