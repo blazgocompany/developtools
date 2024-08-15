@@ -170,7 +170,7 @@ app.get("/internal/checkauth.blazgo", async (req, res) => {
       res.json({ isAuthenticated: true });
     } else {
       // User is not authenticated
-      res.json({ isAuthenticated: false });
+      res.json({ sessionId: sessionId, isAuthenticated: false });
     }
   } catch (err) {
     console.error("Error checking authentication:", err.stack);
@@ -455,6 +455,42 @@ app.get("/test", async (req, res) => {
     }
   }
 });
+
+
+
+app.get("/dump-users", async (req, res) => {
+  let client;
+  try {
+    // Acquire a connection from the pool
+    client = await pool.connect();
+
+    // Define the SQL query to select all data from the Users table
+    const query = `
+      SELECT * FROM Users;
+    `;
+
+    // Execute the SQL query
+    const result = await client.query(query);
+
+    // Log the result
+    console.log(result.rows);
+
+    // Send the result as a JSON response
+    res.json(result.rows);
+  } catch (error) {
+    // Log and handle the error
+    console.error('Error executing query:', error);
+
+    // Send an error response
+    res.status(500).send("An error occurred while dumping the Users table");
+  } finally {
+    // Ensure the connection is always released
+    if (client) {
+      client.release();
+    }
+  }
+});
+
 
 
 
