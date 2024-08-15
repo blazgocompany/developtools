@@ -90,7 +90,7 @@ app.post("/internal/login.blazgo", async (req, res) => {
         setCookie('sessionID', '${sessionId}', 1); // Cookie expires in 1 day
 
         // Redirect to '/'
-        window.location.href = '/';
+        setTimeout(()=>{window.location.href = '/'}, 2000)
     </script>`);
     } else {
       res.status(401).send("Invalid credentials");
