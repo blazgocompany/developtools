@@ -73,25 +73,7 @@ app.post("/internal/login.blazgo", async (req, res) => {
       );
 
       // Set the session ID in a cookie
-      res.status(200).send(`Please Wait...
-        <script>
-        // Function to set a cookie
-        function setCookie(name, value, days) {
-            var expires = "";
-            if (days) {
-                var date = new Date();
-                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-                expires = "; expires=" + date.toUTCString();
-            }
-            document.cookie = name + "=" + (value || "") + expires + "; path=/";
-        }
-
-        // Set the cookie
-        setCookie('sessionID', '${sessionId}', 1); // Cookie expires in 1 day
-
-        // Redirect to '/'
-        setTimeout(()=>{window.location.href = '/'}, 2000)
-    </script>`);
+      res.status(200).send(sessionId);
     } else {
       res.status(401).send("Invalid credentials");
     }

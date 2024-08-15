@@ -23,21 +23,28 @@
       const password = document.getElementById('password').value;
       
       try {
-        const response = await fetch('/internal/signup.blazgo', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password }),
-        });
+  const response = await fetch('/internal/signup.blazgo', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password }),
+    credentials: 'include', // Ensure cookies are sent and received
+  });
 
-        if (response.ok) {
-          window.location.href = '/'; // Redirect to login or another page after signup
-        } else {
-          alert('Signup failed');
-        }
-      } catch (error) {
-        console.error('Error:', error);
-      }
-    });
+  if (response.ok) {
+    const result = await response.json();
+    const sessionId = result.sessionId; // Assume sessionId is in the response JSON
+
+    // Set the cookie with the session ID
+    document.cookie = `sessionId=${sessionId}; path=/; secure; samesite=strict`;
+
+    window.location.href = '/'; // Redirect to login or another page after signup
+  } else {
+    alert('Signup failed');
+  }
+} catch (error) {
+  console.error('Error:', error);
+}
+    })
   </script>
 </body>
 </html>
