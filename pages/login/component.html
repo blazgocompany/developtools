@@ -93,8 +93,8 @@ button:hover {
     });
 
     if (response.ok) {
-      const result = await response.json(); // Assuming the server returns JSON
-      const sessionId = result.sessionId; // Extract the session ID from the response
+      const result = await response.text(); // Assuming the server returns JSON
+      const sessionId = result; // Extract the session ID from the response
 
       // Set the session ID in cookies
       document.cookie = `sessionId=${sessionId}; path=/; secure; samesite=strict`;
