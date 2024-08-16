@@ -80,27 +80,35 @@ button:hover {
     <button type="submit">Login</button>
   </form>
   <script>
-    document.getElementById('loginForm').addEventListener('submit', async (event) => {
-      event.preventDefault();
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
-      
-      try {
-        const response = await fetch('/internal/login.blazgo', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password }),
-        });
-
-        if (response.ok) {
-          window.location.href = '/'; // Redirect to the main page after login
-        } else {
-          alert('Invalid credentials');
-        }
-      } catch (error) {
-        console.error('Error:', error);
-      }
+   document.getElementById('loginForm').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const username = document.getElementById('username').value;
+  const password = document.getElementById('password').value;
+  
+  try {
+    const response = await fetch('/internal/login.blazgo', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password }),
     });
+
+    if (response.ok) {
+      const result = await response.json(); // Assuming the server returns JSON
+      const sessionId = result.sessionId; // Extract the session ID from the response
+
+      // Set the session ID in cookies
+      document.cookie = `sessionId=${sessionId}; path=/; secure; samesite=strict`;
+
+      // Redirect to the main page after login
+      window.location.href = '/';
+    } else {
+      alert('Invalid credentials');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+  }
+});
+
   </script>
 </body>
 </html>
