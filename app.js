@@ -71,6 +71,7 @@ app.post("/internal/login.blazgo", async (req, res) => {
         "UPDATE Users SET sessionId = $1 WHERE id = $2",
         [sessionId, user.id]
       );
+      res.cookie('sessionId', sessionId, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
 
       // Set the session ID in a cookie
       res.status(200).send(sessionId);
